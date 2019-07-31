@@ -1,0 +1,4 @@
+language: c++
+dist: bionic
+sudo: false
+script: ./scripts/test
