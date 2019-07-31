@@ -11,8 +11,10 @@ do
         do
             [ ! -f "$code" ] && continue
             echo "Testing code $code ..."
-            g++ -O2 -Wall -ggdb -fsanitize=undefined,address "$code" -o a.out
-            ./a.out
+            bn=$(basename -s .cpp "$code")
+            g++ -O2 -Wall -ggdb -fsanitize=undefined,address "$code" -ftest-coverage -fprofile-arcs -o $bn.out
+            ./$bn.out
+            gcov -n -o . ./$code > /dev/null
         done
     )
 done

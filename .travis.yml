@@ -1,4 +1,6 @@
 language: c++
 dist: bionic
-sudo: false
+sudo: require
 script: ./scripts/test
+after-success:
+    - bash <(curl -s https://codecov.io/bash)
