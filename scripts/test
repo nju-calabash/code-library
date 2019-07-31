@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+for cat in src/*/
+do
+    [ ! -d "$cat" ] && continue
+    echo "Testing category $cat ..."
+    (
+        cd "$cat"
+        for code in *.cpp
+        do
+            [ ! -f "$code" ] && continue
+            echo "Testing code $code ..."
+            g++ -O2 -Wall -ggdb -fsanitize=undefined,address "$code" -o a.out
+            ./a.out
+        done
+    )
+done
