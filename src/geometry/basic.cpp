@@ -29,6 +29,8 @@ void point_test() {
     x *= 2; assert(x == pt(6, 12));
     x /= 2; assert(x == pt(3, 6));
     x -= pt(3, 4); assert(x == pt(0, 2));
+    assert((pt(1, 2), pt(2, 3)) == 8);
+    assert((pt(1, 2) * pt(-5, 3)) == 13);
 }
 
 void polygon_test() {
