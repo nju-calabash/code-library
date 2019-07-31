@@ -1,6 +1,13 @@
 language: c++
 dist: bionic
-sudo: require
-script: ./scripts/test
+sudo: required
+cache:
+    directories:
+        - build
+
+before_install: ./scripts/dependency.sh
+script: make test
 after_success:
     - bash <(curl -s https://codecov.io/bash)
+after_failure:
+    - make clean
