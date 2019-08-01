@@ -1,7 +1,16 @@
+/*
+%%%
+
+title: Basic Geometry Template
+author: sy_chen
+
+%%%
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 
-//+++
+// +++
 using T = double;
 typedef struct pt : complex<T> {
     pt(T x = 0, T y = 0) : complex<T>(x, y) {}
@@ -15,7 +24,7 @@ struct polygon : vector<pt> {
         return vector<pt>::operator [](id); 
     }
 };
-//---
+// +++
 
 void point_test() {
     assert(pt(1, 2) + pt(2, 3) == pt(3, 5));
@@ -25,6 +34,8 @@ void point_test() {
     x *= 2; assert(x == pt(6, 12));
     x /= 2; assert(x == pt(3, 6));
     x -= pt(3, 4); assert(x == pt(0, 2));
+    assert((pt(1, 2), pt(2, 3)) == 8);
+    assert((pt(1, 2) * pt(-5, 3)) == 13);
 }
 
 void polygon_test() {
