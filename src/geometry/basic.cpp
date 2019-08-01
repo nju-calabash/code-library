@@ -1,9 +1,14 @@
+/*
+%%%
+
+title: Basic Geometry Template
+author: sy_chen
+
+%%%
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
-
-/***
-title: Basic Geometry Template
- ***/
 
 // +++
 using T = double;

@@ -5,7 +5,7 @@ cache:
     directories:
         - build
 
-before_install: ./scripts/dependency.sh
+before_install: ./script/dependency.sh
 script: make test
 after_success:
     - bash <(curl -s https://codecov.io/bash)
