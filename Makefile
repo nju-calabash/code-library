@@ -15,6 +15,7 @@ build/tex/main.pdf : $(TEX_SRCS) script/* build/tex/code.tex
 	cd build/tex && xelatex main.tex
     
 tex : build/tex/main.pdf
+	xdg-open $<
 
 SRC_CODES = $(shell ./script/get-srclist.py)
 SRC_TARGETS = $(SRC_CODES:src/%.cpp=build/%.exec)

@@ -6,25 +6,32 @@ author: sy_chen
 
 %%%
 */
-
+#pragma GCC optimize("fast-math")
 #include <bits/stdc++.h>
 using namespace std;
 
 // +++
-using T = double;
-typedef struct pt : complex<T> {
-    pt(T x = 0, T y = 0) : complex<T>(x, y) {}
-    T operator , (pt a) { return real() * a.real() + imag() * a.imag(); }
-    T operator * (pt a) { return real() * a.imag() - imag() * a.real(); }
-} vec;
+typedef double T;
+typedef complex<T> pt;
+inline T operator , (pt a, pt b) 
+    { return real(a) * real(b) + imag(a) * imag(b); }
+inline T operator * (pt a, pt b) 
+    { return real(a) * imag(b) - imag(a) * real(b); }
 
 struct polygon : vector<pt> {
     pt& operator [] (int id) { 
-        id %= (int)size(); if (id < 0) id += (int)size();
-        return vector<pt>::operator [](id); 
+        if (id < -size() and id >= size()) id %= (int)size(); 
+        if (id < 0) id += (int)size();
+        return vector::operator [](id); 
     }
 };
 // +++
+
+void class_test() {
+    pt x; x = polar(1.0, 0.0);
+    assert(arg(x) == 0);
+    x = 0;
+}
 
 void point_test() {
     assert(pt(1, 2) + pt(2, 3) == pt(3, 5));
@@ -50,6 +57,7 @@ void polygon_test() {
 }
 
 int main() {
+    class_test();
     point_test();
     polygon_test();
     return 0;
