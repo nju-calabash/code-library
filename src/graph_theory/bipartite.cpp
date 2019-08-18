@@ -33,7 +33,7 @@ void mark(int u) {
     vx[u] = true;
     for (int v : adj[u]) if (v != mx[u]) {
         vy[v] = true;
-        markl(my[v]);
+        mark(my[v]);
     }
 }
 
@@ -41,9 +41,9 @@ bool find(int u) {
     for (int v : adj[u]) {
         if (!vis[v] && dy[v] == dx[u] + 1) {
             vis[v] = true;
-            if (!my[adj[u][i]] or find(my[adj[u][i]])) {
-                mx[u] = adj[u][i];
-                my[adj[u][i]] = u;
+            if (!my[v] or find(my[v])) {
+                mx[u] = v;
+                my[v] = u;
                 return true;
             }
         }
@@ -61,14 +61,14 @@ int matching() {
         while (q.size()) q.pop();
         memset(dx, 0, sizeof(dx));
         memset(dy, 0, sizeof(dy));
-        Rep (i, n1) if (!mx[i]) que.push(i);
+        Rep (i, n1) if (!mx[i]) q.push(i);
         while (q.size()) {
-            int u = que.front(); que.pop();
+            int u = q.front(); q.pop();
             for (int v : adj[u]) if (!dy[v]) {
                 dy[v] = dx[u] + 1;
                 if (my[v]) {
                     dx[my[v] = dy[v]] + 1;
-                    que.push(my[v]);
+                    q.push(my[v]);
                 } else flag = true;
             }
         }
