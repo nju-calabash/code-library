@@ -10,7 +10,7 @@ def digest(s) :
 
 line_cnt = 0
 
-recipe = yaml.load(open('recipe.yaml').read(), Loader = yaml.SafeLoader)
+recipe = yaml.load(open('recipe.yml').read(), Loader = yaml.SafeLoader)
 for cat, ls in recipe.items() :
     print('\\section{%s}' % cat.replace('_', ' ').title())
     for fn in ls :
@@ -20,7 +20,7 @@ for cat, ls in recipe.items() :
             subprocess.check_output(['./script/extract.py', '%%%', filename]),
             Loader = yaml.SafeLoader
         )
-        code = subprocess.check_output(['./script/extract.py', '+++', filename]).decode('utf8')
+        code = subprocess.check_output(['./script/extract-src.sh', filename]).decode('utf8')
         title = meta['title']
         desc = meta.get('desc', None)
         usage = meta.get('usage', None)

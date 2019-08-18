@@ -6,25 +6,130 @@ author: sy_chen
 
 %%%
 */
-
+#pragma GCC optimize("fast-math")
 #include <bits/stdc++.h>
 using namespace std;
 
-// +++
-using T = double;
-typedef struct pt : complex<T> {
-    pt(T x = 0, T y = 0) : complex<T>(x, y) {}
-    T operator , (pt a) { return real() * a.real() + imag() * a.imag(); }
-    T operator * (pt a) { return real() * a.imag() - imag() * a.real(); }
-} vec;
+#define rep(i, n) for (int i = 0; i < int(n); i++)
+#define Rep(i, n) for (int i = 1; i <=int(n); i++)
+#define range(x) begin(x), end(x)
 
-struct polygon : vector<pt> {
-    pt& operator [] (int id) { 
-        id %= (int)size(); if (id < 0) id += (int)size();
-        return vector<pt>::operator [](id); 
+// +++
+typedef double T;
+
+inline int fcmp(T a, T b = 0) {
+    if (a == b) return 0;   // add EPS if necessary
+    return a < b ? -1 : 1;
+}
+
+// Point
+
+typedef complex<T> pt, vec;
+inline T operator , (pt a, pt b) 
+    { return real(a) * real(b) + imag(a) * imag(b); }
+inline T operator * (pt a, pt b) 
+    { return real(a) * imag(b) - imag(a) * real(b); }
+
+// >0: in order, <0: out of order, =0: nonstandard
+inline int rotOrder(vec a, vec b, vec c) {
+    return fcmp(double(a*b) * (b*c));
+}
+
+// Segment
+
+typedef pair<pt, pt> seg;
+
+inline bool operator & (seg s, pt p) { // pt in seg
+    vec v1 = s.first - p, v2 = s.second - p;
+    return (v1, v2) <= 0 and v1 * v2 == 0;
+}
+
+inline bool nIntRectRect(seg a, seg b) {
+    rep (i, 2) {
+        if (min(real(a.first), real(a.second)) < 
+            max(real(b.first), real(b.second))) return false;
+        if (min(imag(a.first), imag(a.second)) < 
+            max(imag(b.first), imag(b.second))) return false;
+        swap(a, b);
+    }
+    return true;
+}
+
+inline bool operator & (seg a, seg b) { // seg seg intersection
+    if (!nIntRectRect(a, b)) return false;
+    return rotOrder(b.first-a.first, a.second-a.first, b.second-a.first) >= 0 && 
+           rotOrder(a.first-b.first, b.second-b.first, a.second-b.first) >= 0;
+}
+
+// Polygon
+
+struct polygon : vector<pt> { 
+    pt& get(int id) {
+        while (id < 0) id += size();
+        while (id >= size()) id -= size();
+        return at(id); 
+    }
+
+    seg getseg(int id) {    // {pts[id], pts[id+1]}
+        return {get(id), get(id+1)};
+    }
+
+    //   Make convex hull from a set of points.
+    //   The result starts from the point with minimum x (and minimum y if 
+    // multiple) and is in counterclockwise order. If you want non-strict 
+    // convex hull, change all <= into <.
+    void make_hull(vector<pt> pts) {
+        sort(pts.begin(), pts.end(), [] (pt a, pt b) {
+            return make_pair(real(a), imag(a)) < make_pair(real(b), imag(b));
+        });
+        int k = 0;
+        resize(pts.size()*2);
+        for (int i = 0; i < pts.size(); i++) {
+            while (k > 1 and (at(k-1)-at(k-2)) * (pts[i]-at(k-1)) <= 0) k--;
+            at(k++) = pts[i];
+        }
+        for (int i = pts.size() - 2, t = k; i >= 0; i--) {
+            while (k > t and (at(k-1)-at(k-2)) * (pts[i]-at(k-1)) <= 0) k--;
+            at(k++) = pts[i];
+        }
+        resize(k-1);
+    }
+    
+    bool operator & (pt p) {
+        int wn = 0;
+        rep (i, size()) {
+            if (make_pair(get(i), get(i+1)) & p) return true; // on the border
+            int d1 = fcmp(imag(get(i)), imag(p));
+            int d2 = fcmp(imag(get(i+1)), imag(p));
+            int k = fcmp((get(i+1) - get(i)) * (p - get(i)));
+            if (k > 0 and d1 <= 0 and d2 > 0) wn++;
+            if (k < 0 and d2 <= 0 and d1 > 0) wn--;
+        }
+        return wn;
+    }
+
+    bool convex_contain(pt p) { // non-strict, passed "SPOJ INOROUT"
+        auto qs = [&] (int x) { return at(x) - front(); };
+        vec q = back() - front(); p -= front();
+        if (rotOrder(p, qs(1), q) < 0) return false;
+        int l = 0, r = size() - 1;
+        while (l + 1 < r) {
+            int m = (l + r) / 2;
+            if (rotOrder(p, qs(m), q)) l = m; else r = m;
+        }
+        if (l == 0) return false;
+        vec lp = qs(l), rp = qs(r);
+        return fcmp(fabs(lp * p) + fabs(p * rp) + fabs((rp - lp) * (p - lp)),
+                    lp * rp) == 0;
     }
 };
 // +++
+
+void class_test() {
+    pt x; x = polar(1.0, 0.0);
+    assert(arg(x) == 0);
+    x = 0;
+}
 
 void point_test() {
     assert(pt(1, 2) + pt(2, 3) == pt(3, 5));
@@ -44,12 +149,18 @@ void polygon_test() {
     a.emplace_back(2, 3);
     a.emplace_back(3, 4);
     assert((a == vector<pt>{{1, 2}, {2, 3}, {3, 4}}));
-    assert(a[-1] == pt(3, 4));
-    assert(a[1] == pt(2, 3));
-    assert(a[3] == pt(1, 2));
+    assert(a.get(-1) == pt(3, 4));
+    assert(a.get(1) == pt(2, 3));
+    assert(a.get(3) == pt(1, 2));
+    a.make_hull(vector<pt>{{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0.5, 0.5}, {0, 0.5}});
+    assert((a == vector<pt>{{0, 0}, {1, 0}, {1, 1}, {0, 1}}));
+    assert((a & pt{0.5, 0.5}) == true);
+    assert((a & pt{0, 0.5}) == true);
+    assert((a & pt{1, 2}) == false);
 }
 
 int main() {
+    class_test();
     point_test();
     polygon_test();
     return 0;
