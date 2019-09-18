@@ -58,7 +58,7 @@ T distance(pt p, seg S) {
 
 T distance(seg S, seg T) {
     return min({distance(S.first, T), distance(S.second, T),
-        distance(T.first, S), distance(T.second, S));
+        distance(T.first, S), distance(T.second, S)});
 }
 
 inline bool nIntRectRect(seg a, seg b) {

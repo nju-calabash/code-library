@@ -2,3 +2,5 @@ geometry:
   - basic.cpp
 graph_theory:
   - bipartite.cpp
+miscellaneous:
+  - nimp.cpp
