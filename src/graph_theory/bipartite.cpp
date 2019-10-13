@@ -67,7 +67,7 @@ int matching() {
             for (int v : adj[u]) if (!dy[v]) {
                 dy[v] = dx[u] + 1;
                 if (my[v]) {
-                    dx[my[v] = dy[v]] + 1;
+                    dx[my[v]] = dy[v] + 1;
                     q.push(my[v]);
                 } else flag = true;
             }
