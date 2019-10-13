@@ -4,3 +4,5 @@ graph_theory:
   - bipartite.cpp
 miscellaneous:
   - nimp.cpp
+  - euler-undir.cpp
+  - euler-dir.cpp

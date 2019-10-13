@@ -21,7 +21,7 @@ SRC_CODES = $(shell ./script/get-srclist.py)
 SRC_TARGETS = $(SRC_CODES:src/%.cpp=build/%.exec)
 
 CXX ?= g++
-CXXFLAGS = -O2 -Wall -std=c++14 -ggdb
+CXXFLAGS = -Wall -std=c++14 -ggdb
 CXXFLAGS += -fsanitize=undefined,address
 GCOV ?= gcov
 

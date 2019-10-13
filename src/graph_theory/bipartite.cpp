@@ -6,7 +6,8 @@ using namespace std;
 /*
 %%%
 
-title: Bipartite adjraph
+
+title: Bipartite Matching
 desc:  
     Maximum matching, minimum vertex cover and maximum independent set for
     bipartite graph. All indices are 1-based. \par

@@ -16,11 +16,10 @@ using namespace std;
 
 // +++
 typedef double T;
-const double EPS = 1e-9;
 
-inline int fcmp(double x, double y = 0.0) {
-    if (fabs(x - y) <= EPS) return 0;
-    return x < y ? -1 : 1;
+inline int fcmp(T a, T b = 0) {
+    if (a == b) return 0;   // add EPS if necessary
+    return a < b ? -1 : 1;
 }
 
 // Point
@@ -33,11 +32,11 @@ inline T operator * (pt a, pt b)
     { return real(a) * imag(b) - imag(a) * real(b); }
 inline bool operator == (pt a, pt b) { return abs(a - b) < EPS; }
 
+
 // >0: in order, <0: out of order, =0: nonstandard
 inline int rotOrder(vec a, vec b, vec c) {
     return fcmp(double(a*b) * (b*c));
 }
-
 pt unit(pt x) { return x / abs(x); }
 
 // Segment
@@ -107,21 +106,22 @@ struct polygon : vector<pt> {
     //   The result starts from the point with minimum x (and minimum y if 
     // multiple) and is in counterclockwise order. If you want non-strict 
     // convex hull, change all <= into <.
-    void make_hull() {
-        sort(begin(), end(), [] (pt a, pt b) {
+
+    void make_hull(vector<pt> pts) {
+        sort(pts.begin(), pts.end(), [] (pt a, pt b) {
             return make_pair(real(a), imag(a)) < make_pair(real(b), imag(b));
         });
         int k = 0;
-        vector<pt> h(size() * 2);
-        for (int i = 0; i < size(); i++) {
-            while (k > 1 and (h[k-1]-h[k-2]) * (at(i)-h[k-1]) <= 0) k--;
-            h[k++] = at(i);
+        resize(pts.size()*2);
+        for (int i = 0; i < pts.size(); i++) {
+            while (k > 1 and (at(k-1)-at(k-2)) * (pts[i]-at(k-1)) <= 0) k--;
+            at(k++) = pts[i];
         }
-        for (int i = size() - 2, t = k; i >= 0; i--) {
-            while (k > t and (h[k-1]-h[k-2]) * (at(i)-h[k-1]) <= 0) k--;
-            h[k++] = at(i);
+        for (int i = pts.size() - 2, t = k; i >= 0; i--) {
+            while (k > t and (at(k-1)-at(k-2)) * (pts[i]-at(k-1)) <= 0) k--;
+            at(k++) = pts[i];
         }
-        h.resize(k-1); vector<pt>::operator = (h);
+        resize(k-1);
     }
     
     bool operator & (pt p) {
@@ -186,8 +186,7 @@ void polygon_test() {
     assert(a.get(-1) == pt(3, 4));
     assert(a.get(1) == pt(2, 3));
     assert(a.get(3) == pt(1, 2));
-    (vector<pt>&)a = vector<pt>{{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0.5, 0.5}, {0, 0.5}};
-    a.make_hull();
+    a.make_hull(vector<pt>{{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0.5, 0.5}, {0, 0.5}});
     assert((a == vector<pt>{{0, 0}, {1, 0}, {1, 1}, {0, 1}}));
     assert((a & pt{0.5, 0.5}) == true);
     assert((a & pt{0, 0.5}) == true);
