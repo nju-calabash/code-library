@@ -18,7 +18,7 @@ using namespace std;
 typedef double T;
 
 inline int fcmp(T a, T b = 0) {
-    if (a == b) return 0;   // add EPS if necessary
+    if (fabs(a - b) < 1e-9) return 0;   // add EPS if necessary
     return a < b ? -1 : 1;
 }
 
@@ -30,7 +30,7 @@ inline T operator , (pt a, pt b)
     { return real(a) * real(b) + imag(a) * imag(b); }
 inline T operator * (pt a, pt b) 
     { return real(a) * imag(b) - imag(a) * real(b); }
-inline bool operator == (pt a, pt b) { return abs(a - b) < EPS; }
+inline bool operator == (pt a, pt b) { return fcmp(abs(a - b)) == 0; }
 
 
 // >0: in order, <0: out of order, =0: nonstandard
@@ -50,8 +50,8 @@ inline bool operator & (seg s, pt p) { // pt in seg
 
 T distance(pt p, seg S) {
     pt s, t; tie(s, t) = S;
-    if ((p - s, t - s) < EPS) return abs(p - s);
-    if ((p - t, s - t) < EPS) return abs(p - t);
+    if (fcmp((p - s, t - s)) <= 0) return abs(p - s);
+    if (fcmp((p - t, s - t)) <= 0) return abs(p - t);
     return abs((s - p) * (t - p)) / abs(s - t);
 }
 
@@ -172,9 +172,9 @@ void point_test() {
     assert((pt(1, 2) * pt(-5, 3)) == 13);
     assert(getIntersection({0, 0}, {1, 1}, {2, 0}, {0, 1}) == pt(2, 2));
     assert(project(pt(0, 2), make_pair(pt(0, 0), pt(2, 2))) == pt(1, 1));
-    assert(distance(pt(0, 0), {pt(3, 4), pt(3, 5)}) == 5);
-    assert(distance(pt(0, 0), {pt(3, 5), pt(3, 4)}) == 5);
-    assert(distance(pt(1, 1), {pt(0, 0), pt(0, 2)}) == 1);
+    assert(fcmp(distance(pt(0, 0), {pt(3, 4), pt(3, 5)}), 5) == 0);
+    assert(fcmp(distance(pt(0, 0), {pt(3, 5), pt(3, 4)}), 5) == 0);
+    assert(fcmp(distance(pt(1, 1), {pt(0, 0), pt(0, 2)}), 1) == 0);
 }
 
 void polygon_test() {
