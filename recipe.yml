@@ -1,6 +1,10 @@
+math:
+  - poly.cpp
 geometry:
   - basic.cpp
 graph_theory:
   - bipartite.cpp
   - euler-undir.cpp
   - euler-dir.cpp
+miscellaneous:
+  - nimp.cpp

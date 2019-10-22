@@ -18,22 +18,26 @@ using namespace std;
 typedef double T;
 
 inline int fcmp(T a, T b = 0) {
-    if (a == b) return 0;   // add EPS if necessary
+    if (fabs(a - b) < 1e-9) return 0;   // add EPS if necessary
     return a < b ? -1 : 1;
 }
 
 // Point
 
 typedef complex<T> pt, vec;
+inline pt operator ^ (pt a, pt b) { return a * b; }
 inline T operator , (pt a, pt b) 
     { return real(a) * real(b) + imag(a) * imag(b); }
 inline T operator * (pt a, pt b) 
     { return real(a) * imag(b) - imag(a) * real(b); }
+inline bool operator == (pt a, pt b) { return fcmp(abs(a - b)) == 0; }
+
 
 // >0: in order, <0: out of order, =0: nonstandard
 inline int rotOrder(vec a, vec b, vec c) {
     return fcmp(double(a*b) * (b*c));
 }
+pt unit(pt x) { return x / abs(x); }
 
 // Segment
 
@@ -42,6 +46,18 @@ typedef pair<pt, pt> seg;
 inline bool operator & (seg s, pt p) { // pt in seg
     vec v1 = s.first - p, v2 = s.second - p;
     return (v1, v2) <= 0 and v1 * v2 == 0;
+}
+
+T distance(pt p, seg S) {
+    pt s, t; tie(s, t) = S;
+    if (fcmp((p - s, t - s)) <= 0) return abs(p - s);
+    if (fcmp((p - t, s - t)) <= 0) return abs(p - t);
+    return abs((s - p) * (t - p)) / abs(s - t);
+}
+
+T distance(seg S, seg T) {
+    return min({distance(S.first, T), distance(S.second, T),
+        distance(T.first, S), distance(T.second, S)});
 }
 
 inline bool nIntRectRect(seg a, seg b) {
@@ -61,14 +77,26 @@ inline bool operator & (seg a, seg b) { // seg seg intersection
            rotOrder(a.first-b.first, b.second-b.first, a.second-b.first) >= 0;
 }
 
+inline pt getIntersection(pt P, vec v, pt Q, vec w) { // line line intersection
+    return P + v * (w * (P - Q) / (v * w));
+}
+
+inline pt project(pt p, seg S) { // project p to line s
+    pt s, t; tie(s, t) = S;
+    double r = (t - s, p - s) / norm(t - s);
+    return s + r * (t - s);
+}
+
 // Polygon
 
 struct polygon : vector<pt> { 
     pt& get(int id) {
         while (id < 0) id += size();
         while (id >= size()) id -= size();
-        return at(id); 
+        return at(id);
     }
+
+    pt& operator [] (int id) { return get(id); }
 
     seg getseg(int id) {    // {pts[id], pts[id+1]}
         return {get(id), get(id+1)};
@@ -78,6 +106,7 @@ struct polygon : vector<pt> {
     //   The result starts from the point with minimum x (and minimum y if 
     // multiple) and is in counterclockwise order. If you want non-strict 
     // convex hull, change all <= into <.
+
     void make_hull(vector<pt> pts) {
         sort(pts.begin(), pts.end(), [] (pt a, pt b) {
             return make_pair(real(a), imag(a)) < make_pair(real(b), imag(b));
@@ -141,6 +170,11 @@ void point_test() {
     x -= pt(3, 4); assert(x == pt(0, 2));
     assert((pt(1, 2), pt(2, 3)) == 8);
     assert((pt(1, 2) * pt(-5, 3)) == 13);
+    assert(getIntersection({0, 0}, {1, 1}, {2, 0}, {0, 1}) == pt(2, 2));
+    assert(project(pt(0, 2), make_pair(pt(0, 0), pt(2, 2))) == pt(1, 1));
+    assert(fcmp(distance(pt(0, 0), {pt(3, 4), pt(3, 5)}), 5) == 0);
+    assert(fcmp(distance(pt(0, 0), {pt(3, 5), pt(3, 4)}), 5) == 0);
+    assert(fcmp(distance(pt(1, 1), {pt(0, 0), pt(0, 2)}), 1) == 0);
 }
 
 void polygon_test() {
