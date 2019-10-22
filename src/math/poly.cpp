@@ -43,7 +43,6 @@ namespace poly {
     int base = 1;
     vector<num> roots = {0, 1};
     vector<int> rev = {0, 1};
-    const double pi = acos(-1.0);
 
     void ensure_base(int nbase) {
         if (nbase <= base) return;
@@ -135,23 +134,24 @@ namespace poly {
     }
 
     vector<int> integrate(const vector<int>& a) {
-        int n = a.size();
-        vector<int> ret(n), inv(n);
-        if (n > 1) inv[1] = 1;
-        for (int i = 2; i < n; i++) 
-            inv[i] = (mod - 1ll * inv[mod % i] * (mod / i) % mod) % mod;
+        static vector<int> inv = {0, 1};
+        int n = a.size(); inv.reserve(n);
+        vector<int> ret(n);
+        for (int i = inv.size(); i < n; i++) 
+            inv.push_back((mod - 1ll * inv[mod % i] * (mod / i) % mod) % mod);
         for (int i = n - 1; i; i--) ret[i] = 1ll * a[i-1] * inv[i] % mod;
         return ret;
     }
 
     vector<int> log(const vector<int> &a) {
         assert(a[0] == 1);
-        auto ret = integrate(diff(a) * inverse(a));
+        auto ret = diff(a) * inverse(a);
         ret.resize(a.size());
-        return ret;
+        return integrate(ret);
     }
 
     vector<int> exp(const vector<int> &a, int n = -1) {
+        assert(a[0] == 0);
         if (n < 0) n = a.size();
         if (n == 1) return {1};
         auto ret = exp(a, (n+1)>>1); ret.resize(n);
