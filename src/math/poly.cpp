@@ -77,6 +77,29 @@ namespace poly {
         }
     }
     
+    vector<int> multiply(const vector<int>& a, const vector<int>& b) {
+        int sz = a.size() + b.size() - 1;
+        vector<int> ret(sz);
+        int nbase = 0;
+        while ((1 << nbase) < sz) nbase++;
+        ensure_base(nbase);
+        sz = 1 << nbase;
+        vector<num> fa(sz);
+        rep (i, a.size()) fa[i].real(a[i]);
+        rep (i, b.size()) fa[i].imag(b[i]);
+        fft(fa);
+        num r(0, -0.25 / sz);
+        for (int i = 0; i <= (sz >> 1); i++) {
+            int j = (sz - i) & (sz - 1);
+            num z = (fa[j] * fa[j] - conj(fa[i] * fa[i])) * r;
+            if (i != j) fa[j] = (fa[i] * fa[i] - conj(fa[j] * fa[j])) * r;
+            fa[i] = z;
+        }
+        fft(fa);
+        rep (i, ret.size()) ret[i] = llround(real(fa[i]));
+        return ret;
+    }
+    
     vector<int> operator * (const vector<int>& a, const vector<int>& b) {
         int sz = a.size() + b.size() - 1;
         vector<int> res(sz);
@@ -89,12 +112,12 @@ namespace poly {
             int x = (a[i] % mod + mod) % mod;
             fa[i] = num(x & ((1<<15)-1), x >> 15);
         }
-        fft(fa, sz);
+        fft(fa);
         rep (i, b.size()) {
             int x = (b[i] % mod + mod) % mod;
             fb[i] = num(x & ((1<<15)-1), x >> 15);
         }
-        fft(fb, sz);
+        fft(fb);
         double ratio = 0.25 / sz;
         for (int i = 0; i <= (sz >> 1); i++) {
             int j = (sz - i) & (sz - 1);
@@ -110,7 +133,7 @@ namespace poly {
             }
             rep (s, 2) fa[j] = ra[s], fb[j] = rb[s], swap(i, j);
         }
-        fft(fa, sz); fft(fb, sz);
+        fft(fa); fft(fb);
         rep (i, res.size()) 
             res[i] = (llround(real(fa[i])) + 
                 (llround(real(fb[i])) % mod << 15) +
