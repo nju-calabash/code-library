@@ -6,5 +6,7 @@ graph_theory:
   - bipartite.cpp
   - euler-undir.cpp
   - euler-dir.cpp
+data_structure:
+  - dynamic-segtree.cpp
 miscellaneous:
   - nimp.cpp
